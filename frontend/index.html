@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kisan Procurement Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <div class="header-brand">
+                <img src="images/kisan_logo.jpg" alt="Kisan Portal Logo" class="brand-logo">
+                <h1>Kisan Procurement Portal</h1>
+            </div>
+            <div class="auth-buttons" id="authButtons">
+                <button class="secondary" onclick="showModal('loginModal')">Login</button>
+                <button class="primary" onclick="showModal('registerModal')">Farmer Register</button>
+            </div>
+            <div class="auth-buttons" id="userMenu" style="display: none;">
+                <span id="userNameDisplay" style="font-weight: 600; color: var(--primary-dark);"></span>
+                <button class="secondary" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Landing View -->
+            <div id="landingView" class="view active">
+                <div class="landing-container">
+                    <div class="hero-graphic-box">
+                        <img src="images/farmer_hero.jpg" alt="Crop Harvest Farmer">
+                    </div>
+                    <div class="hero-text-box">
+                        <h2>Direct Government Crop Procurement Portal</h2>
+                        <p>Empowering farmers across India. Sell your crops directly to government procurement centers at guaranteed Minimum Support Prices (MSP) with transparent queue slots and fast payouts.</p>
+                        <div>
+                            <button class="primary" onclick="showModal('registerModal')" style="padding: 14px 28px; font-size: 1.05rem;">🌾 Register as Farmer</button>
+                            <button class="secondary" onclick="showModal('loginModal')" style="padding: 14px 28px; font-size: 1.05rem; margin-left: 12px;">🔑 Portal Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farmer Dashboard View -->
+            <div id="farmerDashboardView" class="view">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h2>👨‍🌾 Your Farmer Profile</h2>
+                        <p style="margin-top: 10px;"><strong>Land Area:</strong> <span id="farmerLandArea">0</span> Acres</p>
+                        <p style="margin-top: 6px;"><strong>Max Crop Weight Capping:</strong> <span id="farmerMaxWeight">0</span> Quintals</p>
+                        <p style="margin-top: 6px;"><strong>Total Revenue Earned:</strong> ₹<span id="farmerTotalRevenue">0</span></p>
+                        <button class="secondary" onclick="showModal('updateProfileModal')" style="margin-top:16px;">Update Land Details</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>🌾 Book Annual Crop Slot</h2>
+                        <label style="font-size:0.9rem; color:#444;">Select Available Crop:</label>
+                        <select id="cropSelect"></select>
+                        <label style="font-size:0.9rem; color:#444;">Quantity to Sell (in Quintals):</label>
+                        <input type="number" id="cropQuantity" placeholder="Quantity (in Quintals)" min="1" step="0.1">
+                        <p id="maxLimitNotice" style="font-size: 0.85rem; color: #1b5e20; margin-top: 2px; font-weight: 600;"></p>
+                        <div id="annualLimitNotice" style="font-size: 0.85rem; color: #b71c1c; background: #ffebee; border: 1px solid #ffcdd2; padding: 8px 12px; border-radius: 8px; margin-top: 10px; display: none;"></div>
+                        <button class="primary" id="bookSlotBtn" onclick="bookSlot()" style="width:100%; margin-top:12px;">Book Annual Slot Now</button>
+                        <p id="bookingMessage" style="margin-top: 10px; color: var(--primary-color); font-weight:600;"></p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h2>📋 Your Transaction & Booking History</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Crop</th>
+                                <th>Quantity (Qtl)</th>
+                                <th>Calculated Amount</th>
+                                <th>Queue / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="farmerHistoryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard View -->
+            <div id="adminDashboardView" class="view">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h2>📊 Manage MSP Crop Prices</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Crop Name</th>
+                                    <th>MSP Price / Quintal (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminCropTable"></tbody>
+                        </table>
+                        <h3 style="margin-top: 24px; color: var(--primary-dark);">Add New Crop Category</h3>
+                        <input type="text" id="newCropName" placeholder="Crop Name (e.g. Barley)">
+                        <input type="number" id="newCropPrice" placeholder="Price per Quintal (₹)">
+                        <button class="primary" onclick="addCrop()" style="margin-top: 6px;">Add Crop</button>
+                    </div>
+
+                    <div class="card">
+                        <h2>📅 Today's Pending Procurement Slots</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slot ID</th>
+                                    <th>Scheduled Date & Queue</th>
+                                    <th>Transaction Ref</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSlotsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-badge-header">
+                <img src="images/kisan_logo.jpg" alt="Logo" class="modal-badge-icon">
+                <h2>Portal Login</h2>
+            </div>
+            <input type="text" id="loginId" placeholder="Aadhaar No. (Farmer) or Username (Admin)">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <p id="loginError" style="font-size: 0.85rem; color: #b71c1c; background: #ffebee; border: 1px solid #ffcdd2; padding: 6px 10px; border-radius: 6px; margin-top: 8px; display: none;"></p>
+            <p style="font-size: 0.85rem; color: #444; margin-top: 8px; background: #eef7ee; border: 1px solid #c8e6c9; padding: 8px 12px; border-radius: 8px;">
+                💡 <b>Admin Demo Login:</b> User: <code>admin</code> | Pass: <code>adminpassword</code>
+            </p>
+            <button class="primary" style="width: 100%; margin-top: 14px;" onclick="login()">Login</button>
+            <button class="secondary" style="width: 100%; margin-top: 10px;" onclick="closeModal('loginModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-badge-header">
+                <img src="images/kisan_logo.jpg" alt="Logo" class="modal-badge-icon">
+                <h2>Farmer Registration</h2>
+            </div>
+            <input type="text" id="regAadhaar" placeholder="Aadhaar Number (12 digits)" maxlength="12">
+            <input type="text" id="regName" placeholder="Full Name">
+            <input type="text" id="regPhone" placeholder="Phone Number">
+            <input type="password" id="regPassword" placeholder="Password">
+            <p id="regError" style="font-size: 0.85rem; color: #b71c1c; background: #ffebee; border: 1px solid #ffcdd2; padding: 6px 10px; border-radius: 6px; margin-top: 8px; display: none;"></p>
+            <button class="primary" style="width: 100%; margin-top: 14px;" onclick="registerFarmer()">Register Account</button>
+            <button class="secondary" style="width: 100%; margin-top: 10px;" onclick="closeModal('registerModal')">Cancel</button>
+        </div>
+    </div>
+    
+    <div id="updateProfileModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-badge-header">
+                <img src="images/kisan_logo.jpg" alt="Logo" class="modal-badge-icon">
+                <h2 id="landModalTitle">Register Land Area Details</h2>
+            </div>
+            <p style="font-size: 0.85rem; color: #333; background: #e8f5e9; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;">
+                🌾 <b>Note:</b> Maximum sellable crop weight will be automatically calculated as <b>Land Area (Acres) × 10 Quintals</b>.
+            </p>
+            <label style="font-size:0.9rem; color:#444;">Land Area (in Acres):</label>
+            <input type="number" id="updateLandArea" placeholder="e.g. 5.0 (Land area in Acres)" step="0.1" min="0.1">
+            <label style="display:block; margin: 10px 0 5px; font-size: 0.9rem; color: #555;">Upload Land Document Copy (Optional)</label>
+            <input type="file" id="updateLandDoc">
+            <button class="primary" style="width: 100%; margin-top: 14px;" onclick="updateProfile()">Save Land Details</button>
+            <button class="secondary" style="width: 100%; margin-top: 10px;" onclick="closeModal('updateProfileModal')">Cancel</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
