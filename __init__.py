@@ -1,13 +1,2 @@
-from __future__ import annotations
-
-__version__ = "26.2.1"
-
-
-def main(args: list[str] | None = None) -> int:
-    """This is an internal API only meant for use by pip's own console scripts.
-
-    For additional details, see https://github.com/pypa/pip/issues/7498.
-    """
-    from pip._internal.utils.entrypoints import _wrapper
-
-    return _wrapper(args)
+# https://www.python.org/dev/peps/pep-0396/
+__version__ = '0.6.4'
